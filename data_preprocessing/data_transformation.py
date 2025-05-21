@@ -28,6 +28,7 @@ class DataTransformer:
         4. Cumulative changes from start date
         5. Binary column that indicates price increase from previous week
         6. Calculate price percentage changes
+        7. Week column
 
         """
         # 1. Use input data if provided, otherwise use self.df
@@ -85,5 +86,8 @@ class DataTransformer:
 
         # Replace NaN with None
         df = df.fillna(np.nan).replace({np.nan: None})
+
+        # Add additional week column for price date
+        df['week'] = df['price_date'].dt.isocalendar().week
 
         return df
