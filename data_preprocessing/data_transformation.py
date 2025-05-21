@@ -25,6 +25,19 @@ class DataTransformer:
         ]
         return self.df
 
+    # Trim trailing and leading spaces from categorical values
+    def trim_spaces(self, columns: List[str] = []) -> DataFrame:
+        columns_to_process = columns if columns else self.df.select_dtypes(include=[
+                                                                           'object']).columns
+        for col in columns_to_process:
+            if self.df[col].dtype == 'object':
+                self.df[col] = self.df[col].str.strip()
+        return self.df
+
+    # Return clean df
+    def get_transformed_data(self) -> DataFrame:
+        return self.df
+
     def transform_fuel_data(self) -> DataFrame:
         """
         Transformation Steps:
