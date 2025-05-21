@@ -13,6 +13,18 @@ class DataTransformer:
     def __init__(self, df: Optional[DataFrame] = None) -> None:
         self.df = df if df is not None else pd.DataFrame()
 
+    # Individual Data Cleaning Functions ###########    # Format column names to snake_case
+    def format_column_names_to_snake_case(self) -> DataFrame:
+        self.df.columns = [
+            re.sub(r'\.', '',
+                   re.sub(r'\s+', '_', c).lower()
+                   if ' ' in c else re.sub(r'([a-z0-9])([A-Z])', r'\1_\2',
+                                           re.sub(r'([a-z])([A-Z])', r'\1_\2', c)).lower()
+                   )
+            for c in self.df.columns
+        ]
+        return self.df
+
     def transform_fuel_data(self) -> DataFrame:
         """
         Transformation Steps:
