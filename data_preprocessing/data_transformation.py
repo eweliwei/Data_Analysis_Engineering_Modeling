@@ -56,6 +56,13 @@ class DataTransformer:
                 self.df[col] = pd.to_datetime(self.df[col])
         return self.df
 
+    # Standardise specific categorical columns by converting to upper case
+    def standardize_text_columns(self, columns: List[str]) -> DataFrame:
+        for col in columns:
+            if col in self.df.columns and self.df[col].dtype == 'object':
+                self.df[col] = self.df[col].str.strip().str.upper()
+        return self.df
+
     # Return clean df
     def get_transformed_data(self) -> DataFrame:
         return self.df
