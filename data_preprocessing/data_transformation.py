@@ -34,6 +34,21 @@ class DataTransformer:
                 self.df[col] = self.df[col].str.strip()
         return self.df
 
+        # Fill default value as median for missing numerical values
+    def fill_missing_numeric(self) -> DataFrame:
+        numeric_cols = self.df.select_dtypes(
+            include=['int64', 'float64']).columns
+        for col in numeric_cols:
+            self.df[col].fillna(self.df[col].median())
+        return self.df
+
+    # Fill default value as NA for missing categorical values
+    def fill_missing_categorical(self) -> pd.DataFrame:
+        categorical_cols = self.df.select_dtypes(include=['object']).columns
+        for col in categorical_cols:
+            self.df[col] = self.df[col].fillna('NA')
+        return self.df
+
     # Return clean df
     def get_transformed_data(self) -> DataFrame:
         return self.df
