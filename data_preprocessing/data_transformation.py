@@ -49,6 +49,13 @@ class DataTransformer:
             self.df[col] = self.df[col].fillna('NA')
         return self.df
 
+    # Convert columns to datetime
+    def convert_datetime_col(self, date_columns: List[str]) -> DataFrame:
+        for col in date_columns:
+            if col in self.df.columns:
+                self.df[col] = pd.to_datetime(self.df[col])
+        return self.df
+
     # Return clean df
     def get_transformed_data(self) -> DataFrame:
         return self.df
