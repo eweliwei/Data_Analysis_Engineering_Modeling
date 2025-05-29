@@ -18,3 +18,4 @@ requests==2.32.3
 seaborn==0.13.2
 plotly==5.19.0s
 nbformat>=4.2.0
+scikit-learn==1.6.1
