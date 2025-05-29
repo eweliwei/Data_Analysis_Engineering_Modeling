@@ -13,60 +13,6 @@ class DataTransformer:
     def __init__(self, df: Optional[DataFrame] = None) -> None:
         self.df = df if df is not None else pd.DataFrame()
 
-    # Individual Data Cleaning Functions ###########    # Format column names to snake_case
-    def format_column_names_to_snake_case(self) -> DataFrame:
-        self.df.columns = [
-            re.sub(r'\.', '',
-                   re.sub(r'\s+', '_', c).lower()
-                   if ' ' in c else re.sub(r'([a-z0-9])([A-Z])', r'\1_\2',
-                                           re.sub(r'([a-z])([A-Z])', r'\1_\2', c)).lower()
-                   )
-            for c in self.df.columns
-        ]
-        return self.df
-
-    # Trim trailing and leading spaces from categorical values
-    def trim_spaces(self, columns: List[str] = []) -> DataFrame:
-        columns_to_process = columns if columns else self.df.select_dtypes(include=[
-                                                                           'object']).columns
-        for col in columns_to_process:
-            if self.df[col].dtype == 'object':
-                self.df[col] = self.df[col].str.strip()
-        return self.df
-
-        # Fill default value as median for missing numerical values
-    def fill_missing_numeric(self) -> DataFrame:
-        numeric_cols = self.df.select_dtypes(
-            include=['int64', 'float64']).columns
-        for col in numeric_cols:
-            self.df[col].fillna(self.df[col].median())
-        return self.df
-
-    # Fill default value as NA for missing categorical values
-    def fill_missing_categorical(self) -> pd.DataFrame:
-        categorical_cols = self.df.select_dtypes(include=['object']).columns
-        for col in categorical_cols:
-            self.df[col] = self.df[col].fillna('NA')
-        return self.df
-
-    # Convert columns to datetime
-    def convert_datetime_col(self, date_columns: List[str]) -> DataFrame:
-        for col in date_columns:
-            if col in self.df.columns:
-                self.df[col] = pd.to_datetime(self.df[col])
-        return self.df
-
-    # Standardise specific categorical columns by converting to upper case
-    def standardize_text_columns(self, columns: List[str]) -> DataFrame:
-        for col in columns:
-            if col in self.df.columns and self.df[col].dtype == 'object':
-                self.df[col] = self.df[col].str.strip().str.upper()
-        return self.df
-
-    # Return clean df
-    def get_transformed_data(self) -> DataFrame:
-        return self.df
-
     def transform_fuel_data(self) -> DataFrame:
         """
         Transformation Steps:
@@ -82,7 +28,6 @@ class DataTransformer:
         4. Cumulative changes from start date
         5. Binary column that indicates price increase from previous week
         6. Calculate price percentage changes
-        7. Week column
 
         """
         # 1. Use input data if provided, otherwise use self.df
@@ -141,7 +86,68 @@ class DataTransformer:
         # Replace NaN with None
         df = df.fillna(np.nan).replace({np.nan: None})
 
-        # Add additional week column for price date
-        df['week'] = df['price_date'].dt.isocalendar().week
-
         return df
+
+    ########### Individual Data Cleaning Functions ###########
+
+    # Convert columns to datetime
+    def convert_datetime_col(self, date_columns: List[str]) -> DataFrame:
+        for col in date_columns:
+            if col in self.df.columns:
+                self.df[col] = pd.to_datetime(self.df[col])
+        return self.df
+
+    # Fill default value as median for missing numerical values
+    def fill_missing_numeric(self) -> DataFrame:
+        numeric_cols = self.df.select_dtypes(
+            include=['int64', 'float64']).columns
+        for col in numeric_cols:
+            self.df[col].fillna(self.df[col].median())
+        return self.df
+
+    # Fill default value as NA for missing categorical values
+    def fill_missing_categorical(self) -> pd.DataFrame:
+        categorical_cols = self.df.select_dtypes(include=['object']).columns
+        for col in categorical_cols:
+            self.df[col] = self.df[col].fillna('NA')
+        return self.df
+
+    # Standardise specific categorical columns by converting to upper case
+    def standardize_text_columns(self, columns: List[str]) -> DataFrame:
+        for col in columns:
+            if col in self.df.columns and self.df[col].dtype == 'object':
+                self.df[col] = self.df[col].str.strip().str.upper()
+        return self.df
+
+    # Format column names to snake_case
+    def format_column_names_to_snake_case(self) -> DataFrame:
+        self.df.columns = [
+            re.sub(r'\.', '',
+                   re.sub(r'\s+', '_', c).lower()
+                   if ' ' in c else re.sub(r'([a-z0-9])([A-Z])', r'\1_\2',
+                                           re.sub(r'([a-z])([A-Z])', r'\1_\2', c)).lower()
+                   )
+            for c in self.df.columns
+        ]
+        return self.df
+
+    # Trim trailing and leading spaces from categorical value
+    def trim_leading_trailing_spaces(self, columns: List[str] = []) -> DataFrame:
+        # Select columns with object or string dtype if none specified
+        columns_to_process = columns if columns else self.df.select_dtypes(
+            include=['object', 'string']).columns
+
+        for col in columns_to_process:
+            if self.df[col].dtype in ['object', 'string']:
+                # Force convert to string to avoid .str errors
+                self.df[col] = self.df[col].astype(str).str.strip()
+            else:
+                print(
+                    f"Column '{col}' is not of object or string dtype — trimming not required.")
+
+        return self.df
+
+    # Return clean df
+
+    def get_transformed_data(self) -> DataFrame:
+        return self.df
