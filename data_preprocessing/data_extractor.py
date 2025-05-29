@@ -74,3 +74,24 @@ class DataExtractor:
                     logger.error(
                         f"Max retries ({max_retries}) reached for GitHub file {github_url}")
                     return None
+
+    def fetch_parquet_data(self, parquet_file: str, max_retries: int = 3) -> Optional[pd.DataFrame]:
+        """
+        Extract Parquet data
+
+        Args:
+            parquet_file: Direct URL to the Parquet file
+            max_retries: Maximum number of retry attempts
+        """
+        for attempt in range(max_retries):
+            logger.info(f"Fetching Parquet data from {parquet_file}")
+            try:
+                df = pd.read_parquet(parquet_file, engine='auto')
+                return df
+            except Exception as e:
+                logger.error(
+                    f"Attempt {attempt + 1} failed: Error reading Parquet from {parquet_url}: {e}")
+                if attempt == max_retries - 1:
+                    logger.error(
+                        f"Max retries ({max_retries}) reached for Parquet file {parquet_url}")
+                    return None
