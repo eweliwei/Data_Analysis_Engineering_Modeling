@@ -28,6 +28,7 @@ class DataTransformer:
         4. Cumulative changes from start date
         5. Binary column that indicates price increase from previous week
         6. Calculate price percentage changes
+        7. Week column
 
         """
         # 1. Use input data if provided, otherwise use self.df
@@ -86,6 +87,9 @@ class DataTransformer:
         # Replace NaN with None
         df = df.fillna(np.nan).replace({np.nan: None})
 
+        # Add additional week column for price date
+        df['week'] = df['price_date'].dt.isocalendar().week
+
         return df
 
     ########### Individual Data Cleaning Functions ###########
@@ -132,7 +136,7 @@ class DataTransformer:
         return self.df
 
     # Trim trailing and leading spaces from categorical value
-    def trim_leading_trailing_spaces(self, columns: List[str] = []) -> DataFrame:
+    def trim_spaces(self, columns: List[str] = []) -> DataFrame:
         # Select columns with object or string dtype if none specified
         columns_to_process = columns if columns else self.df.select_dtypes(
             include=['object', 'string']).columns
