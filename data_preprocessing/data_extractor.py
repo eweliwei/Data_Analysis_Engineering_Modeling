@@ -90,8 +90,8 @@ class DataExtractor:
                 return df
             except Exception as e:
                 logger.error(
-                    f"Attempt {attempt + 1} failed: Error reading Parquet from {parquet_url}: {e}")
+                    f"Attempt {attempt + 1} failed: Error reading Parquet from {parquet_file}: {e}")
                 if attempt == max_retries - 1:
                     logger.error(
-                        f"Max retries ({max_retries}) reached for Parquet file {parquet_url}")
+                        f"Max retries ({max_retries}) reached for Parquet file {parquet_file}")
                     return None
